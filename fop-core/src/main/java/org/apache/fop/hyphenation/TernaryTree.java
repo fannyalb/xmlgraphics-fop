@@ -81,17 +81,17 @@ public class TernaryTree implements Cloneable, Serializable {
      * Pointer to low branch and to rest of the key when it is
      * stored directly in this node, we don't have unions in java!
      */
-    protected char[] lo;
+    protected int[] lo;
 
     /**
      * Pointer to high branch.
      */
-    protected char[] hi;
+    protected int[] hi;
 
     /**
      * Pointer to equal branch and to data when this node is a string terminator.
      */
-    protected char[] eq;
+    protected int[] eq;
 
     /**
      * <P>The character stored in this node: splitchar.
@@ -107,12 +107,12 @@ public class TernaryTree implements Cloneable, Serializable {
     /**
      * This vector holds the trailing of the keys when the branch is compressed.
      */
-    protected CharVector kv;
+    protected CharVector keyVector;
 
     /** root */
-    protected char root;
+    protected int root;
     /** free node */
-    protected char freenode;
+    protected int freenode;
     /** number of items in tree */
     protected int length;
 
@@ -129,11 +129,11 @@ public class TernaryTree implements Cloneable, Serializable {
         root = 0;
         freenode = 1;
         length = 0;
-        lo = new char[BLOCK_SIZE];
-        hi = new char[BLOCK_SIZE];
-        eq = new char[BLOCK_SIZE];
+        lo = new int[BLOCK_SIZE];
+        hi = new int[BLOCK_SIZE];
+        eq = new int[BLOCK_SIZE];
         sc = new char[BLOCK_SIZE];
-        kv = new CharVector();
+        keyVector = new CharVector();
     }
 
     /**
@@ -146,7 +146,7 @@ public class TernaryTree implements Cloneable, Serializable {
      * @param key the key
      * @param val a value
      */
-    public void insert(String key, char val) {
+    public void insert(String key, int val) {
         // make sure we have enough room in the arrays
         int len = key.length()
                   + 1;    // maximum number of nodes that may be generated
@@ -176,8 +176,11 @@ public class TernaryTree implements Cloneable, Serializable {
     /**
      * The actual insertion function, recursive version.
      */
-    private char insert(char p, char[] key, int start, char val) {
+    private int insert(int p, char[] key, int start, int val) {
         int len = strlen(key, start);
+        if (freenode + len > eq.length) {
+            redimNodeArrays(eq.length + BLOCK_SIZE);
+        }
         if (p == 0) {
             // this means there is no branch, this node will start a new branch.
             // Instead of doing that, we store the key somewhere else and create
@@ -188,9 +191,9 @@ public class TernaryTree implements Cloneable, Serializable {
             hi[p] = 0;
             if (len > 0) {
                 sc[p] = 0xFFFF;    // indicates branch is compressed
-                lo[p] = (char)kv.alloc(len
+                lo[p] = (char) keyVector.alloc(len
                                        + 1);    // use 'lo' to hold pointer to key
-                strcpy(kv.getArray(), lo[p], key, start);
+                strcpy(keyVector.getArray(), lo[p], key, start);
             } else {
                 sc[p] = 0;
                 lo[p] = 0;
@@ -202,15 +205,15 @@ public class TernaryTree implements Cloneable, Serializable {
             // branch is compressed: need to decompress
             // this will generate garbage in the external key array
             // but we can do some garbage collection later
-            char pp = freenode++;
+            int pp = freenode++;
             lo[pp] = lo[p];    // previous pointer to key
             eq[pp] = eq[p];    // previous pointer to data
             lo[p] = 0;
             if (len > 0) {
-                sc[p] = kv.get(lo[pp]);
+                sc[p] = keyVector.get(lo[pp]);
                 eq[p] = pp;
                 lo[pp]++;
-                if (kv.get(lo[pp]) == 0) {
+                if (keyVector.get(lo[pp]) == 0) {
                     // key completly decompressed leaving garbage in key array
                     lo[pp] = 0;
                     sc[pp] = 0;
@@ -346,13 +349,13 @@ public class TernaryTree implements Cloneable, Serializable {
      */
     public int find(char[] key, int start) {
         int d;
-        char p = root;
+        int p = root;
         int i = start;
         char c;
 
         while (p != 0) {
             if (sc[p] == 0xFFFF) {
-                if (strcmp(key, i, kv.getArray(), lo[p]) == 0) {
+                if (strcmp(key, i, keyVector.getArray(), lo[p]) == 0) {
                     return eq[p];
                 } else {
                     return -1;
@@ -386,18 +389,18 @@ public class TernaryTree implements Cloneable, Serializable {
     // redimension the arrays
     private void redimNodeArrays(int newsize) {
         int len = newsize < lo.length ? newsize : lo.length;
-        char[] na = new char[newsize];
-        System.arraycopy(lo, 0, na, 0, len);
-        lo = na;
-        na = new char[newsize];
-        System.arraycopy(hi, 0, na, 0, len);
-        hi = na;
-        na = new char[newsize];
-        System.arraycopy(eq, 0, na, 0, len);
-        eq = na;
-        na = new char[newsize];
-        System.arraycopy(sc, 0, na, 0, len);
-        sc = na;
+        int[] newArray = new int[newsize];
+        System.arraycopy(lo, 0, newArray, 0, len);
+        lo = newArray;
+        newArray = new int[newsize];
+        System.arraycopy(hi, 0, newArray, 0, len);
+        hi = newArray;
+        newArray = new int[newsize];
+        System.arraycopy(eq, 0, newArray, 0, len);
+        eq = newArray;
+        char[] newSCArray = new char[newsize];
+        System.arraycopy(sc, 0, newSCArray, 0, len);
+        sc = newSCArray;
     }
 
     /** @return length */
@@ -412,7 +415,7 @@ public class TernaryTree implements Cloneable, Serializable {
         t.hi = this.hi.clone();
         t.eq = this.eq.clone();
         t.sc = this.sc.clone();
-        t.kv = (CharVector)this.kv.clone();
+        t.keyVector = (CharVector)this.keyVector.clone();
 
         return t;
     }
@@ -427,7 +430,7 @@ public class TernaryTree implements Cloneable, Serializable {
      * @param offset where to insert
      * @param n count to insert
      */
-    protected void insertBalanced(String[] k, char[] v, int offset, int n) {
+    protected void insertBalanced(String[] k, int[] v, int offset, int n) {
         int m;
         if (n < 1) {
             return;
@@ -450,7 +453,7 @@ public class TernaryTree implements Cloneable, Serializable {
         int i = 0;
         int n = length;
         String[] k = new String[n];
-        char[] v = new char[n];
+        int[] v = new int[n];
         Iterator iter = new Iterator();
         while (iter.hasMoreElements()) {
             v[i] = iter.getValue();
@@ -488,20 +491,20 @@ public class TernaryTree implements Cloneable, Serializable {
         kx.alloc(1);
         TernaryTree map = new TernaryTree();
         compact(kx, map, root);
-        kv = kx;
-        kv.trimToSize();
+        keyVector = kx;
+        keyVector.trimToSize();
     }
 
-    private void compact(CharVector kx, TernaryTree map, char p) {
+    private void compact(CharVector kx, TernaryTree map, int p) {
         int k;
         if (p == 0) {
             return;
         }
         if (sc[p] == 0xFFFF) {
-            k = map.find(kv.getArray(), lo[p]);
+            k = map.find(keyVector.getArray(), lo[p]);
             if (k < 0) {
-                k = kx.alloc(strlen(kv.getArray(), lo[p]) + 1);
-                strcpy(kx.getArray(), k, kv.getArray(), lo[p]);
+                k = kx.alloc(strlen(keyVector.getArray(), lo[p]) + 1);
+                strcpy(kx.getArray(), k, keyVector.getArray(), lo[p]);
                 map.insert(kx.getArray(), k, (char)k);
             }
             lo[p] = (char)k;
@@ -534,9 +537,9 @@ public class TernaryTree implements Cloneable, Serializable {
 
         private class Item implements Cloneable {
             /** parent */
-            char parent;
+            int parent;
             /** child */
-            char child;
+            int child;
 
             /** default constructor */
             public Item() {
@@ -549,7 +552,7 @@ public class TernaryTree implements Cloneable, Serializable {
              * @param p a char
              * @param c a char
              */
-            public Item(char p, char c) {
+            public Item(int p, int c) {
                 parent = p;
                 child = c;
             }
@@ -564,25 +567,25 @@ public class TernaryTree implements Cloneable, Serializable {
         /**
          * Node stack
          */
-        Stack ns;
+        Stack nodeStack;
 
         /**
          * key stack implemented with a StringBuffer
          */
-        StringBuffer ks;
+        StringBuffer keyStack;
 
         /** default constructor */
         public Iterator() {
             cur = -1;
-            ns = new Stack();
-            ks = new StringBuffer();
+            nodeStack = new Stack();
+            keyStack = new StringBuffer();
             rewind();
         }
 
         /** rewind iterator */
         public void rewind() {
-            ns.removeAllElements();
-            ks.setLength(0);
+            nodeStack.removeAllElements();
+            keyStack.setLength(0);
             cur = root;
             run();
         }
@@ -596,7 +599,7 @@ public class TernaryTree implements Cloneable, Serializable {
         }
 
         /** @return value */
-        public char getValue() {
+        public int getValue() {
             if (cur >= 0) {
                 return eq[cur];
             }
@@ -615,7 +618,7 @@ public class TernaryTree implements Cloneable, Serializable {
             Item i = new Item();
             int res = 0;
 
-            if (ns.empty()) {
+            if (nodeStack.empty()) {
                 return -1;
             }
 
@@ -626,17 +629,17 @@ public class TernaryTree implements Cloneable, Serializable {
             boolean climb = true;
 
             while (climb) {
-                i = (Item)ns.pop();
+                i = (Item) nodeStack.pop();
                 i.child++;
                 switch (i.child) {
                 case 1:
                     if (sc[i.parent] != 0) {
                         res = eq[i.parent];
-                        ns.push(i.clone());
-                        ks.append(sc[i.parent]);
+                        nodeStack.push(i.clone());
+                        keyStack.append(sc[i.parent]);
                     } else {
                         i.child++;
-                        ns.push(i.clone());
+                        nodeStack.push(i.clone());
                         res = hi[i.parent];
                     }
                     climb = false;
@@ -644,15 +647,15 @@ public class TernaryTree implements Cloneable, Serializable {
 
                 case 2:
                     res = hi[i.parent];
-                    ns.push(i.clone());
-                    if (ks.length() > 0) {
-                        ks.setLength(ks.length() - 1);    // pop
+                    nodeStack.push(i.clone());
+                    if (keyStack.length() > 0) {
+                        keyStack.setLength(keyStack.length() - 1);    // pop
                     }
                     climb = false;
                     break;
 
                 default:
-                    if (ns.empty()) {
+                    if (nodeStack.empty()) {
                         return -1;
                     }
                     climb = true;
@@ -678,7 +681,7 @@ public class TernaryTree implements Cloneable, Serializable {
                         leaf = true;
                         break;
                     }
-                    ns.push(new Item((char)cur, '\u0000'));
+                    nodeStack.push(new Item(cur, 0));
                     if (sc[cur] == 0) {
                         leaf = true;
                         break;
@@ -696,11 +699,11 @@ public class TernaryTree implements Cloneable, Serializable {
             }
             // The current node should be a data node and
             // the key should be in the key stack (at least partially)
-            StringBuffer buf = new StringBuffer(ks.toString());
+            StringBuffer buf = new StringBuffer(keyStack.toString());
             if (sc[cur] == 0xFFFF) {
                 int p = lo[cur];
-                while (kv.get(p) != 0) {
-                    buf.append(kv.get(p++));
+                while (keyVector.get(p) != 0) {
+                    buf.append(keyVector.get(p++));
                 }
             }
             curkey = buf.toString();
@@ -717,7 +720,7 @@ public class TernaryTree implements Cloneable, Serializable {
         System.out.println("Node count = " + Integer.toString(freenode));
         // System.out.println("Array length = " + Integer.toString(eq.length));
         System.out.println("Key Array length = "
-                           + Integer.toString(kv.length()));
+                           + Integer.toString(keyVector.length()));
 
         /*
          * for(int i=0; i<kv.length(); i++)

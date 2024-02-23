@@ -254,14 +254,14 @@ public class HyphenationTree extends TernaryTree implements PatternConsumer {
     protected void searchPatterns(char[] word, int index, byte[] il) {
         byte[] values;
         int i = index;
-        char p;
-        char q;
+        int p;
+        int q;
         char sp = word[i];
         p = root;
 
         while (p > 0 && p < sc.length) {
             if (sc[p] == 0xFFFF) {
-                if (hstrcmp(word, i, kv.getArray(), lo[p]) == 0) {
+                if (hstrcmp(word, i, keyVector.getArray(), lo[p]) == 0) {
                     values = getValues(eq[p]);    // data pointer is in eq[]
                     int j = index;
                     for (byte value : values) {

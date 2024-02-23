@@ -207,7 +207,7 @@ list of possible build targets.
   <property name="lib.dir" value="${basedir}/lib"/>
   <property name="user.hyph.dir" value="${basedir}/hyph"/>
   <property name="unidata.dir" value="${basedir}/UNIDATA"/>
-  <property name="hyph.stacksize" value="512k"/>
+  <property name="hyph.stacksize" value="512M"/>
   <property name="test.dir" value="${basedir}/test"/>
   <property name="test.java.dir" value="${src.dir}/test/java"/>
   <property name="test.resources.dir" value="${src.dir}/test/resources"/>
