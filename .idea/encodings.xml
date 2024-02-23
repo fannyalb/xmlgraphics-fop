@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/fop-core/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/fop-core/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/fop-events/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/fop-events/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/fop-sandbox/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/fop-sandbox/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/fop-servlet/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/fop-servlet/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/fop-transcoder-allinone/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/fop-transcoder-allinone/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/fop-transcoder/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/fop-transcoder/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/fop-util/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/fop-util/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/fop/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/fop/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
+  </component>
+</project>
