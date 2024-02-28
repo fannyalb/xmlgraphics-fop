@@ -11,10 +11,13 @@
         <module name="fop-core" />
         <module name="fop-transcoder-allinone" />
         <module name="fop-events" />
-        <module name="fop-sandbox" />
         <module name="fop-transcoder" />
+        <module name="fop-sandbox" />
         <module name="fop-servlet" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="fop-sandbox (1)" target="1.7" />
+    </bytecodeTargetLevel>
   </component>
 </project>
