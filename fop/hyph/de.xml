@@ -98,6 +98,12 @@
     <exceptions>
         schweine-braten
         schweine-braten-semmel
+        aufstrich-brot
+        hühner-schnitzel--semmel
+        hühner-schnitzel
+        pausen-jause
+        schoko-bananen
+        kartoffel-salat
     </exceptions>
     <patterns>
         .ab3a
@@ -36809,9 +36815,9 @@
         zz2ö
         zzug4s
         zz2w
-        7schnit6zel5
+        7s8hnit6zel5
         7semmel7
-        .hüh4er5
+        .hüh4ner5
         .schwei8ne7
         sonnen7
         7braten7
@@ -36821,6 +36827,9 @@
         7st6ange7
         7stein5ofen7
         7baguette7
-        7salat7
+        7sa8lat7
+        ha4us7ge5macht7e9
+        9ja8use7
+        .schoko9
     </patterns>
 </hyphenation-info>
