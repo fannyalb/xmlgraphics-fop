@@ -221,12 +221,13 @@ public class FontManager {
      * @param strict whether to enforce strict validation
      * @param listener the listener for font related events
      * @param fontInfoList a list of font info objects
+     * @param skipLastModifiedCheck whether to skip the last modified check of the font cache
      * @throws FOPException if an exception was thrown auto-detecting fonts
      */
     public void autoDetectFonts(boolean autoDetectFonts, FontAdder fontAdder, boolean strict,
-            FontEventListener  listener, List<EmbedFontInfo> fontInfoList) throws FOPException {
+            FontEventListener  listener, List<EmbedFontInfo> fontInfoList, boolean skipLastModifiedCheck) throws FOPException {
         if (autoDetectFonts) {
-            fontDetector.detect(this, fontAdder, strict, listener, fontInfoList);
+            fontDetector.detect(this, fontAdder, strict, listener, fontInfoList, skipLastModifiedCheck);
         }
     }
 }
