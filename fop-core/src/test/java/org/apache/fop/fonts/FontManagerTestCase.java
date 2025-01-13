@@ -68,7 +68,7 @@ public class FontManagerTestCase {
         String uri = "abc://localhost/f";
         EmbedFontInfo efi = new EmbedFontInfo(new FontUris(new URI(uri), null), false, false, null, null);
         FontCache fc = new FontCache();
-        fc.addFont(efi, rr);
+        fc.addFont(efi, rr, false);
         Assert.assertTrue(fc.containsFont(uri));
     }
 

@@ -141,7 +141,8 @@ public class FontInfoFinder {
      * @return FontInfo from the given custom font
      */
     private EmbedFontInfo getFontInfoFromCustomFont(URI fontUri, CustomFont customFont,
-            FontCache fontCache, InternalResourceResolver resourceResolver) {
+            FontCache fontCache, InternalResourceResolver resourceResolver,
+            boolean skipLastModifiedCheck) {
         FontUris fontUris = new FontUris(fontUri, null);
         List<FontTriplet> fontTripletList = new java.util.ArrayList<FontTriplet>();
         generateTripletsFromFont(customFont, fontTripletList);
@@ -153,7 +154,7 @@ public class FontInfoFinder {
                 customFont.isAdvancedEnabled(), fontTripletList, subFontName);
         fontInfo.setPostScriptName(customFont.getFontName());
         if (fontCache != null) {
-            fontCache.addFont(fontInfo, resourceResolver);
+            fontCache.addFont(fontInfo, resourceResolver, skipLastModifiedCheck);
         }
         return fontInfo;
     }
@@ -167,7 +168,7 @@ public class FontInfoFinder {
      * @return an array of newly created embed font info. Generally, this array
      *         will have only one entry, unless the fontUrl is a TrueType Collection
      */
-    public EmbedFontInfo[] find(URI fontURI, InternalResourceResolver resourceResolver, FontCache fontCache) {
+    public EmbedFontInfo[] find(URI fontURI, InternalResourceResolver resourceResolver, FontCache fontCache, boolean skipLastModifiedCheck) {
         URI embedUri = resourceResolver.resolveFromBase(fontURI);
         String embedStr = embedUri.toASCIIString();
         boolean useKerning = true;
@@ -175,7 +176,10 @@ public class FontInfoFinder {
 
         long fileLastModified = -1;
         if (fontCache != null) {
-            fileLastModified = FontCache.getLastModified(fontURI);
+            if (!skipLastModifiedCheck) {
+                fileLastModified = FontCache.getLastModified(fontURI);
+            }
+
             // firstly try and fetch it from cache before loading/parsing the font file
             if (fontCache.containsFont(embedStr)) {
                 EmbedFontInfo[] fontInfos = fontCache.getFontInfos(embedStr, fileLastModified);
@@ -239,7 +243,7 @@ public class FontInfoFinder {
                     continue;
                 }
                 EmbedFontInfo fi = getFontInfoFromCustomFont(fontURI, customFont, fontCache,
-                        resourceResolver);
+                        resourceResolver, skipLastModifiedCheck);
                 if (fi != null) {
                     embedFontInfoList.add(fi);
                 }
@@ -265,7 +269,7 @@ public class FontInfoFinder {
                 }
                 return null;
             }
-            EmbedFontInfo fi = getFontInfoFromCustomFont(fontURI, customFont, fontCache, resourceResolver);
+            EmbedFontInfo fi = getFontInfoFromCustomFont(fontURI, customFont, fontCache, resourceResolver, skipLastModifiedCheck);
             if (fi != null) {
                 return new EmbedFontInfo[] {fi};
             } else {

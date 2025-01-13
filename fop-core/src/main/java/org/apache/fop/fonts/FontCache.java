@@ -319,7 +319,7 @@ public final class FontCache implements Serializable {
      * @param fontInfo
      *            font info
      */
-    public void addFont(EmbedFontInfo fontInfo, InternalResourceResolver resourceResolver) {
+    public void addFont(EmbedFontInfo fontInfo, InternalResourceResolver resourceResolver, boolean skipLastModifiedCheck) {
         String cacheKey = getCacheKey(fontInfo);
         synchronized (changeLock) {
             CachedFontFile cachedFontFile;
@@ -331,7 +331,7 @@ public final class FontCache implements Serializable {
             } else {
                 // try and determine modified date
                 URI fontUri = resourceResolver.resolveFromBase(fontInfo.getEmbedURI());
-                long lastModified = getLastModified(fontUri);
+                long lastModified = skipLastModifiedCheck ? -1 : getLastModified(fontUri);
                 cachedFontFile = new CachedFontFile(lastModified);
                 if (log.isTraceEnabled()) {
                     log.trace("Font added to cache: " + cacheKey);
@@ -368,7 +368,8 @@ public final class FontCache implements Serializable {
      */
     public EmbedFontInfo[] getFontInfos(String embedUrl, long lastModified) {
         CachedFontFile cff = getFontFile(embedUrl);
-        if (cff.lastModified() == lastModified) {
+        // lastModified is -1 here if skipLastModifiedCheck is enabled
+        if (lastModified == -1 || cff.lastModified() == lastModified) {
             return cff.getEmbedFontInfos();
         } else {
             removeFont(embedUrl);

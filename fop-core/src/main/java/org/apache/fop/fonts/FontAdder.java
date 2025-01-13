@@ -53,14 +53,14 @@ public class FontAdder {
      * @param fontInfoList a configured font info list
      * @throws URISyntaxException if a URI syntax error is found
      */
-    public void add(List<URL> fontURLList, List<EmbedFontInfo> fontInfoList)
+    public void add(List<URL> fontURLList, List<EmbedFontInfo> fontInfoList, boolean skipLastModifiedCheck)
             throws URISyntaxException {
         FontCache cache = manager.getFontCache();
         FontInfoFinder finder = new FontInfoFinder();
         finder.setEventListener(listener);
 
         for (URL fontURL : fontURLList) {
-            EmbedFontInfo[] embedFontInfos = finder.find(fontURL.toURI(), resourceResolver, cache);
+            EmbedFontInfo[] embedFontInfos = finder.find(fontURL.toURI(), resourceResolver, cache, skipLastModifiedCheck);
             if (embedFontInfos == null) {
                 continue;
             }

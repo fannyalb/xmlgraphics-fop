@@ -47,9 +47,11 @@ public final class DefaultFontConfig implements FontConfig {
     private final List<String> referencedFontFamilies = new ArrayList<String>();
 
     private final boolean autoDetectFonts;
+    private final boolean skipLastModifiedCheck;
 
-    private DefaultFontConfig(boolean autoDetectFonts) {
+    private DefaultFontConfig(boolean autoDetectFonts, boolean skipLastModifiedCheck) {
         this.autoDetectFonts = autoDetectFonts;
+        this.skipLastModifiedCheck = skipLastModifiedCheck;
     }
 
     /**
@@ -104,7 +106,7 @@ public final class DefaultFontConfig implements FontConfig {
                 this.strict = strict;
                 this.config = cfg;
                 this.fontInfoCfg = cfg.getChild("fonts", false);
-                instance = new DefaultFontConfig(fontInfoCfg.getChild("auto-detect", false) != null);
+                instance = new DefaultFontConfig(fontInfoCfg.getChild("auto-detect", false) != null, fontInfoCfg.getChild("skip-last-modified-check", false) != null);
                 parse();
             }
         }
@@ -260,6 +262,14 @@ public final class DefaultFontConfig implements FontConfig {
      */
     public boolean isAutoDetectFonts() {
         return autoDetectFonts;
+    }
+
+    /**
+     * Whether to skip the last modified check on the cached fonts.
+     * @return true to skip the last modified check
+     */
+    public boolean isSkipLastModifiedCheck() {
+        return skipLastModifiedCheck;
     }
 
     /**

@@ -30,5 +30,5 @@ import org.apache.fop.apps.FOPException;
 
 public interface FontDetector {
     void detect(FontManager fontManager, FontAdder fontAdder, boolean strict,
-            FontEventListener eventListener, List<EmbedFontInfo> fontInfoList) throws FOPException;
+            FontEventListener eventListener, List<EmbedFontInfo> fontInfoList, boolean skipLastModifiedCheck) throws FOPException;
 }

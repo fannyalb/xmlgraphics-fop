@@ -434,6 +434,16 @@ public class FopConfBuilder implements FontConfigurator<FopConfBuilder> {
         }
 
         /**
+         * Add &lt;skip-last-modified-check&gt;.
+         *
+         * @return <b>this</b>
+         */
+        public FontsConfBuilder<P> addSkipLastModifiedCheck() {
+            fontsEl.appendChild(fopConfDOM.createElement("skip-last-modified-check"));
+            return this;
+        }
+
+        /**
          * Add a &lt;directory&gt; for specifying a directory to check fonts in.
          *
          * @param directory the directory to find fonts within

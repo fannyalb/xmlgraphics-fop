@@ -62,7 +62,8 @@ public final class FontDetectorFactory {
 
     private static class DisabledFontDetector implements FontDetector {
         public void detect(FontManager fontManager, FontAdder fontAdder, boolean strict,
-                FontEventListener eventListener, List<EmbedFontInfo> fontInfoList)
+                FontEventListener eventListener, List<EmbedFontInfo> fontInfoList,
+                boolean skipLastModifiedCheck)
                 throws FOPException {
             // nop
         }
@@ -84,7 +85,8 @@ public final class FontDetectorFactory {
          * @throws FOPException thrown if a problem occurred during detection
          */
         public void detect(FontManager fontManager, FontAdder fontAdder, boolean strict,
-                FontEventListener eventListener, List<EmbedFontInfo> fontInfoList)
+                FontEventListener eventListener, List<EmbedFontInfo> fontInfoList,
+                boolean skipLastModifiedCheck)
                 throws FOPException {
             try {
                 // search in font base if it is defined and
@@ -94,7 +96,7 @@ public final class FontDetectorFactory {
                 File fontBase = FileUtils.toFile(fontBaseURI.toURL());
                 if (fontBase != null) {
                     List<URL> fontURLList = fontFileFinder.find(fontBase.getAbsolutePath());
-                    fontAdder.add(fontURLList, fontInfoList);
+                    fontAdder.add(fontURLList, fontInfoList, skipLastModifiedCheck);
 
                     //Can only use the font base URL if it's a file URL
                 }
@@ -102,12 +104,12 @@ public final class FontDetectorFactory {
                 // native o/s font directory finding
                 List<URL> systemFontList;
                 systemFontList = fontFileFinder.find();
-                fontAdder.add(systemFontList, fontInfoList);
+                fontAdder.add(systemFontList, fontInfoList, skipLastModifiedCheck);
 
                 // classpath font finding
                 ClasspathResource resource = ClasspathResource.getInstance();
                 for (String mimeTypes : FONT_MIMETYPES) {
-                    fontAdder.add(resource.listResourcesOfMimeType(mimeTypes), fontInfoList);
+                    fontAdder.add(resource.listResourcesOfMimeType(mimeTypes), fontInfoList, skipLastModifiedCheck);
                 }
             } catch (IOException e) {
                 LogUtil.handleException(log, e, strict);

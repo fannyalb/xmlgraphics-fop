@@ -80,7 +80,7 @@ public class DefaultFontConfigurator implements FontConfigurator<EmbedFontInfo> 
             FontAdder fontAdder = new FontAdder(fontManager, resourceResolver, listener);
             // native o/s search (autodetect) configuration
             fontManager.autoDetectFonts(adobeFontInfoConfig.isAutoDetectFonts(), fontAdder, strict,
-                    listener, fontInfoList);
+                    listener, fontInfoList, adobeFontInfoConfig.isSkipLastModifiedCheck());
             // Add configured directories to FontInfo list
             addDirectories(adobeFontInfoConfig, fontAdder, fontInfoList);
             // Add configured fonts to FontInfo
@@ -119,7 +119,7 @@ public class DefaultFontConfigurator implements FontConfigurator<EmbedFontInfo> 
             List<URL> fontURLList;
             try {
                 fontURLList = fontFileFinder.find(directory.getDirectory());
-                fontAdder.add(fontURLList, fontInfoList);
+                fontAdder.add(fontURLList, fontInfoList, fontInfoConfig.isSkipLastModifiedCheck());
             } catch (IOException e) {
                 LogUtil.handleException(log, e, strict);
             } catch (URISyntaxException use) {
@@ -133,14 +133,14 @@ public class DefaultFontConfigurator implements FontConfigurator<EmbedFontInfo> 
         // font file (singular) configuration
         List<DefaultFontConfig.Font> fonts = fontInfoConfig.getFonts();
         for (DefaultFontConfig.Font font : fonts) {
-            EmbedFontInfo embedFontInfo = getFontInfo(font, fontCache);
+            EmbedFontInfo embedFontInfo = getFontInfo(font, fontCache, fontInfoConfig.isSkipLastModifiedCheck());
             if (embedFontInfo != null) {
                 fontInfoList.add(embedFontInfo);
             }
         }
     }
 
-    private EmbedFontInfo getFontInfo(DefaultFontConfig.Font font, FontCache fontCache)
+    private EmbedFontInfo getFontInfo(DefaultFontConfig.Font font, FontCache fontCache, boolean skipLastModifiedCheck)
             throws FOPException, URISyntaxException {
         String embed = font.getEmbedURI();
         String metrics = font.getMetrics();
@@ -161,7 +161,7 @@ public class DefaultFontConfigurator implements FontConfigurator<EmbedFontInfo> 
             URI fontUri = resourceResolver.resolveFromBase(embedUri);
             FontInfoFinder finder = new FontInfoFinder();
             finder.setEventListener(listener);
-            EmbedFontInfo[] infos = finder.find(fontUri, resourceResolver, fontCache);
+            EmbedFontInfo[] infos = finder.find(fontUri, resourceResolver, fontCache, skipLastModifiedCheck);
             return infos[0]; //When subFont is set, only one font is returned
         }
         EncodingMode encodingMode = EncodingMode.getValue(font.getEncodingMode());
@@ -171,7 +171,7 @@ public class DefaultFontConfigurator implements FontConfigurator<EmbedFontInfo> 
                 font.getSimulateStyle(), font.getEmbedAsType1(), font.getUseSVG());
         if (fontCache != null) {
             if (!fontCache.containsFont(embedFontInfo)) {
-                fontCache.addFont(embedFontInfo, resourceResolver);
+                fontCache.addFont(embedFontInfo, resourceResolver, skipLastModifiedCheck);
             }
         }
 
